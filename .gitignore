@@ -36,3 +36,10 @@ lerna-debug.log*
 
 # package
 lib
+
+# env
+.env*
+!.env.example
+
+#primsa
+prisma/dev.db*

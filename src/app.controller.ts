@@ -19,8 +19,9 @@ export class AppController {
     return this.appService.getError();
   }
 
-  @Get('/error')
+  @Get('/bad-request')
   getBadRequest() {
+    this.logger.assignExtraData({ extra: 'extra data' });
     return this.appService.getBadRequest();
   }
 }

@@ -1,6 +1,14 @@
-import { ConsoleLogger, Injectable, LogLevel, Scope } from '@nestjs/common';
+import {
+  ConsoleLogger,
+  Inject,
+  Injectable,
+  LogLevel,
+  Scope,
+} from '@nestjs/common';
+import { AppLoggerConstants } from './appLogger.constants';
 import { storage } from './storage';
 import { AppLogger } from './types/AppLogger.type';
+import { AppLoggerParams } from './types/AppLoggerParams.type';
 import { AppLoggerRequest } from './types/AppLoggerRequest.type';
 import { AppLoggerResponse } from './types/AppLoggerResponse.type';
 import { parseRequest } from './utils/parseRequest';
@@ -8,7 +16,15 @@ import { parseResponse } from './utils/parseResponse';
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class AppLoggerService extends ConsoleLogger {
-  private convertToStringMessage = false;
+  private convertLogObjToString = false;
+
+  constructor(
+    @Inject(AppLoggerConstants.PARAMS_PROVIDER_TOKEN)
+    private readonly params: AppLoggerParams,
+  ) {
+    super();
+    this.convertLogObjToString = !!this.params.convertLogObjToString;
+  }
 
   logStackError(error: Error) {
     const errorMessage = error.stack || error.message;
@@ -46,19 +62,23 @@ export class AppLoggerService extends ConsoleLogger {
   }
 
   private call(level: LogLevel, message: any) {
-    const msg = this.buildLoggerMessage(message);
-    super[level](msg);
+    try {
+      const msg = this.buildLoggerMessage(level, message);
+      const parsedMsg = this.convertLogObjToString ? JSON.stringify(msg) : msg;
+      super[level](parsedMsg);
+      // this.onLoggerListener();
+    } catch (error) {
+      this.logStackError(error);
+    }
   }
 
-  private buildLoggerMessage(message: any) {
+  private buildLoggerMessage(level: LogLevel, message: any) {
     const loggerObj = {
       ...this.logger,
       msg: message,
+      date: new Date().toISOString(),
+      level: level.toUpperCase(),
     };
-
-    if (this.convertToStringMessage) {
-      return JSON.stringify(loggerObj);
-    }
 
     return loggerObj;
   }

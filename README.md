@@ -28,6 +28,7 @@ Another motivator is to allow access to logs triggered by the system and use thi
 
 - [Installation](#Installation)
 - [Getting Started](#Getting-Started)
+- [Example: Saving logs to the database](#example-saving-logs-to-the-database)
 - [Common questions](#common-questions)
 - [I need your help](#common-questions)
 
@@ -90,6 +91,42 @@ import { AppLoggerModule } from '@manogel/nestjs-log-trail';
     }),
   ],
 })
+```
+# Example: Saving logs to the database
+See source code in [src](/src/) (NestJs, Prisma with SQLite)
+
+```
+@Module({
+  imports: [
+    PrismaModule,
+    AppLoggerModule.registerAsync({
+      useFactory: (prismaService: PrismaService) => {
+        return {
+          convertLogObjToString: false,
+          async setLoggerListener(data) {
+            await prismaService.applicationLogger.create({
+              data: {
+                level: data.level,
+                msg: data.msg,
+                context: data.context,
+                date: data.date,
+                req: JSON.stringify(data.req),
+                res: JSON.stringify(data.res),
+                extra: JSON.stringify(data.extra),
+              },
+              select: { id: true },
+            });
+          },
+        };
+      },
+      inject: [PrismaService],
+      imports: [PrismaModule],
+    }),
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
 ```
 
 

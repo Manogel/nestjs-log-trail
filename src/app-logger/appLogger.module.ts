@@ -4,11 +4,14 @@ import {
   MiddlewareConsumer,
   Module,
   NestModule,
-  RequestMethod,
 } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { NextFunction } from 'express';
 import { AppLoggerConstants } from './appLogger.constants';
+import {
+  AppLoggerModuleClass,
+  AppLoggerModuleOptionsToken,
+} from './appLogger.definition';
 import { AppLoggerInterceptor } from './appLogger.interceptor';
 import { AppLoggerMiddleware } from './appLogger.middleware';
 import { AppLoggerService } from './appLogger.service';
@@ -24,25 +27,22 @@ import { AppLoggerRequest } from './types/AppLoggerRequest.type';
       provide: APP_INTERCEPTOR,
       useClass: AppLoggerInterceptor,
     },
-    {
-      provide: AppLoggerConstants.PARAMS_PROVIDER_TOKEN,
-      useValue: {
-        applyForRoutes: [{ path: '*', method: RequestMethod.ALL }],
-        convertLogObjToString: false,
-      },
-    },
   ],
   exports: [AppLoggerService],
 })
-export class AppLoggerModule implements NestModule {
+export class AppLoggerModule
+  extends AppLoggerModuleClass
+  implements NestModule
+{
   constructor(
-    @Inject(AppLoggerConstants.PARAMS_PROVIDER_TOKEN)
-    private readonly params: AppLoggerParams,
-  ) {}
+    @Inject(AppLoggerModuleOptionsToken)
+    private params: AppLoggerParams,
+  ) {
+    super();
+  }
 
   configure(consumer: MiddlewareConsumer) {
     const { applyForRoutes = AppLoggerConstants.FOR_ROUTES } = this.params;
-
     consumer.apply(...this.buildLoggerMiddlers()).forRoutes(...applyForRoutes);
   }
 

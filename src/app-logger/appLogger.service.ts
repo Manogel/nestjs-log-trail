@@ -5,7 +5,7 @@ import {
   LogLevel,
   Scope,
 } from '@nestjs/common';
-import { AppLoggerConstants } from './appLogger.constants';
+import { AppLoggerModuleOptionsToken } from './appLogger.definition';
 import { storage } from './storage';
 import { AppLogger } from './types/AppLogger.type';
 import { AppLoggerParams } from './types/AppLoggerParams.type';
@@ -19,7 +19,7 @@ export class AppLoggerService extends ConsoleLogger {
   private convertLogObjToString = false;
 
   constructor(
-    @Inject(AppLoggerConstants.PARAMS_PROVIDER_TOKEN)
+    @Inject(AppLoggerModuleOptionsToken)
     private readonly params: AppLoggerParams,
   ) {
     super();
@@ -66,7 +66,7 @@ export class AppLoggerService extends ConsoleLogger {
       const msg = this.buildLoggerMessage(level, message);
       const parsedMsg = this.convertLogObjToString ? JSON.stringify(msg) : msg;
       super[level](parsedMsg);
-      // this.onLoggerListener();
+      this.params.setLoggerListener?.(msg);
     } catch (error) {
       this.logStackError(error);
     }

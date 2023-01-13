@@ -4,7 +4,18 @@ import { AppService } from './app.service';
 import { AppLoggerModule } from './app-logger/appLogger.module';
 
 @Module({
-  imports: [AppLoggerModule],
+  imports: [
+    AppLoggerModule.registerAsync({
+      useFactory: () => {
+        return {
+          convertLogObjToString: true,
+          setLoggerListener(data) {
+            console.log('data', data);
+          },
+        };
+      },
+    }),
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

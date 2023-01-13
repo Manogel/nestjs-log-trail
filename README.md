@@ -1,73 +1,162 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+<h1 align="center">
+@manogel/nestjs-log-trail
+</h1>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+<h2 align="center">
+Provides logs anywhere for your application NestJs with request context.
+</h2>
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+# Motivation
 
-## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+For a long time, I was frustrated with errors in production applications. My time has always invested a lot of working time trying to understand why the frontend was not behaving correctly with unknown errors in the backend and at the same time many problems persist in the backend and go unnoticed, either because it was developed by a junior team or the code review failed.
 
-## Installation
+This package implements a custom logger to allow quick and easy detection of problems, mainly in production applications.
 
-```bash
-$ yarn install
-```
+Another motivator is to allow access to logs triggered by the system and use this information to save in a database or even alert other systems such as Discord, Slack, etc.
 
-## Running the app
 
-```bash
-# development
-$ yarn run start
+# Features
 
-# watch mode
-$ yarn run start:dev
+- Log every request/response errors automatically
+- Log every request/response if configured
+- Log in JSON or stringified JSON
+- Bind extra informations anywhere application layer for more details in your logs
+- Setup a logger listener for more control with your logs
 
-# production mode
-$ yarn run start:prod
-```
+# Index
 
-## Test
+- [Installation](#Installation)
+- [Getting Started](#Getting-Started)
+- [Example: Saving logs to the database](#example-saving-logs-to-the-database)
+- [Common questions](#common-questions)
+- [I need your help](#common-questions)
+
+# Installation
 
 ```bash
-# unit tests
-$ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
+npm i @manogel/nestjs-log-trail
 ```
 
-## Support
+or
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+yarn add @manogel/nestjs-log-trail
+```
 
-## Stay in touch
+# Getting Started
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Default object configuration
 
-## License
+```
+AppLoggerModule.register({
+    applyForRoutes: [{ path: '*', method: RequestMethod.ALL }],
+    convertLogObjToString: false,
+    setLoggerListener: undefined,
+    logAllRequests: false,
+    logOnlyErrorRequests: true,
+    modifyErrorPrototype: true,
+  })
+```
 
-Nest is [MIT licensed](LICENSE).
+## Default configuration with register
+
+`Update app.module.ts with:`
+
+```javascript
+import { AppLoggerModule } from '@manogel/nestjs-log-trail';
+
+@Module({
+  imports: [
+    AppLoggerModule.register({})
+  ],
+})
+```
+
+## Default configuration with registerAsync
+
+`Update app.module.ts with:`
+
+```javascript
+import { AppLoggerModule } from '@manogel/nestjs-log-trail';
+
+@Module({
+  imports: [
+    AppLoggerModule.registerAsync({
+      imports: [],
+      inject: [],
+      useFactory() {
+        return {};
+      },
+    }),
+  ],
+})
+```
+# Example: Saving logs to the database
+See source code in [src](/src/) (NestJs, Prisma with SQLite)
+
+```
+@Module({
+  imports: [
+    PrismaModule,
+    AppLoggerModule.registerAsync({
+      useFactory: (prismaService: PrismaService) => {
+        return {
+          convertLogObjToString: false,
+          async setLoggerListener(data) {
+            await prismaService.applicationLogger.create({
+              data: {
+                level: data.level,
+                msg: data.msg,
+                context: data.context,
+                date: data.date,
+                req: JSON.stringify(data.req),
+                res: JSON.stringify(data.res),
+                extra: JSON.stringify(data.extra),
+              },
+              select: { id: true },
+            });
+          },
+        };
+      },
+      inject: [PrismaService],
+      imports: [PrismaModule],
+    }),
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+```
+
+
+# Common questions
+
+> Why not pay for a monitoring system instead of this package?
+
+I've always had problems with third-party tools for tracking issues. Either because I didn't have all the necessary information or difficulty using it. So I made my own logger implementation for total control of informations.
+
+> What is the `modifyErrorPrototype` parameter used for?
+
+Is an parameter enable by default to allow convert Error class in stringified object.
+```
+if (!('toJSON' in Error.prototype))
+  Object.defineProperty(Error.prototype, 'toJSON', {
+    value: function () {
+      const alt = {};
+
+      Object.getOwnPropertyNames(this).forEach(function (key) {
+        alt[key] = this[key];
+      }, this);
+
+      return alt;
+    },
+    configurable: true,
+    writable: true,
+  });
+```
+For more details: [see stackoverflow](https://stackoverflow.com/questions/18391212/is-it-not-possible-to-stringify-an-error-using-json-stringify)
+
+
+# I need your help
+I need your help for collaborate and maintain this project 😊. Every help is welcome.

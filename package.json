@@ -1,5 +1,5 @@
 {
-  "name": "nestjs-log-trail",
+  "name": "@manogel/nestjs-log-trail",
   "version": "0.1.0",
   "description": "Custom logger for NestJS",
   "author": "Manogel <manoelgomes53@gmail.com> (http://github.com/manogel)",
@@ -36,7 +36,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint": "eslint \"src/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",

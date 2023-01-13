@@ -1,12 +1,36 @@
 {
-  "name": "nest-log-trail",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
-  "private": true,
+  "name": "nestjs-log-trail",
+  "version": "0.1.0",
+  "description": "Custom logger for NestJS",
+  "author": "Manogel <manoelgomes53@gmail.com> (http://github.com/manogel)",
   "license": "UNLICENSED",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib/*.{js,d.ts}"
+  ],
+  "engineStrict": true,
+  "engines": {
+    "node": ">= 14"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manogel/nestjs-log-trail.git"
+  },
+  "keywords": [
+    "nestjs",
+    "nest.js",
+    "nest",
+    "logger",
+    "trail"
+  ],
+  "bugs": {
+    "url": "https://github.com/manogel/nestjs-log-trail/issues"
+  },
   "scripts": {
+    "prebuild:package": "rimraf lib",
     "build": "nest build",
+    "build:package": "tsc -p tsconfig.lib.json",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -19,15 +43,13 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
-  "dependencies": {
+  "devDependencies": {
     "@nestjs/common": "^9.0.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
-    "uuid": "^9.0.0"
-  },
-  "devDependencies": {
+    "uuid": "^9.0.0",
     "@nestjs/cli": "^9.0.0",
     "@nestjs/schematics": "^9.0.0",
     "@nestjs/testing": "^9.0.0",
@@ -50,6 +72,10 @@
     "ts-node": "^10.0.0",
     "tsconfig-paths": "4.1.1",
     "typescript": "^4.7.4"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^8.0.0 || ^9.0.0",
+    "uuid": "^9.0.0"
   },
   "jest": {
     "moduleFileExtensions": [

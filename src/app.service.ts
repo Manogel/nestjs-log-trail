@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { AppLoggerService } from './app-logger/appLogger.service';
 
 @Injectable()
@@ -7,7 +7,15 @@ export class AppService {
     this.logger.setContext(AppService.name);
   }
   getHello() {
-    throw new Error('Test error');
     return { ok: 'Hello World!' };
+  }
+
+  getError() {
+    this.logger.debug('Test debug error');
+    throw new Error('Test error');
+  }
+
+  getBadRequest() {
+    throw new BadRequestException('Bad request');
   }
 }

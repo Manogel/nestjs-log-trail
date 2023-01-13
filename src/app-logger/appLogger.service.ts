@@ -118,7 +118,7 @@ export class AppLoggerService extends ConsoleLogger {
     return store;
   }
 
-  public get logger(): AppLogger {
+  private get logger(): AppLogger {
     return storage.getStore()?.logger || {};
   }
 }

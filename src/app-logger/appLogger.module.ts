@@ -18,6 +18,7 @@ import { AppLoggerService } from './appLogger.service';
 import { AppLoggerStore, storage } from './storage';
 import { AppLoggerParams } from './types/AppLoggerParams.type';
 import { AppLoggerRequest } from './types/AppLoggerRequest.type';
+import { AppLoggerResponse } from './types/AppLoggerResponse.type';
 
 @Global()
 @Module({
@@ -60,7 +61,7 @@ export class AppLoggerModule
 
   private buildLoggerOnStorageMiddleware(
     req: AppLoggerRequest,
-    _res: Response,
+    _res: AppLoggerResponse,
     next: NextFunction,
   ) {
     const logger = req.logger;

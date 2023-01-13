@@ -29,6 +29,7 @@ import { PrismaService } from './prisma/prisma.service';
         };
       },
       inject: [PrismaService],
+      imports: [PrismaModule],
     }),
   ],
   controllers: [AppController],

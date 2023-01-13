@@ -42,7 +42,15 @@ export class AppLoggerModule
   }
 
   configure(consumer: MiddlewareConsumer) {
-    const { applyForRoutes = AppLoggerConstants.FOR_ROUTES } = this.params;
+    const {
+      applyForRoutes = AppLoggerConstants.FOR_ROUTES,
+      modifyErrorPrototype,
+    } = this.params;
+
+    if (modifyErrorPrototype !== false) {
+      this.modifyErrorPrototype();
+    }
+
     consumer.apply(...this.buildLoggerMiddlers()).forRoutes(...applyForRoutes);
   }
 
@@ -58,5 +66,22 @@ export class AppLoggerModule
     const logger = req.logger;
 
     storage.run(new AppLoggerStore(logger), next, undefined);
+  }
+
+  private modifyErrorPrototype() {
+    if (!('toJSON' in Error.prototype))
+      Object.defineProperty(Error.prototype, 'toJSON', {
+        value: function () {
+          const alt = {};
+
+          Object.getOwnPropertyNames(this).forEach(function (key) {
+            alt[key] = this[key];
+          }, this);
+
+          return alt;
+        },
+        configurable: true,
+        writable: true,
+      });
   }
 }

@@ -7,6 +7,7 @@ export class AppService {
     this.logger.setContext(AppService.name);
   }
   getHello() {
+    throw new Error('Test error');
     return { ok: 'Hello World!' };
   }
 }

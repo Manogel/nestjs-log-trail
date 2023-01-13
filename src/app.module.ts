@@ -8,7 +8,7 @@ import { AppLoggerModule } from './app-logger/appLogger.module';
     AppLoggerModule.registerAsync({
       useFactory: () => {
         return {
-          convertLogObjToString: true,
+          convertLogObjToString: false,
           setLoggerListener(data) {
             console.log('data', data);
           },

@@ -4,4 +4,5 @@ export interface AppLoggerObj extends AppLogger {
   msg: string;
   date: string;
   level: string;
+  context?: string;
 }

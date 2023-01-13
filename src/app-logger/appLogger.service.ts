@@ -5,6 +5,7 @@ import {
   LogLevel,
   Scope,
 } from '@nestjs/common';
+import { AppLoggerConstants } from './appLogger.constants';
 import { AppLoggerModuleOptionsToken } from './appLogger.definition';
 import { storage } from './storage';
 import { AppLogger } from './types/AppLogger.type';
@@ -55,10 +56,19 @@ export class AppLoggerService extends ConsoleLogger {
     const parsedRequest = parseRequest(request);
     const parsedResponse = parseResponse(response, request);
 
+    let logLevel: LogLevel = 'debug';
+    if (response.statusCode >= AppLoggerConstants.HTTP_CLIENT_ERROR_CODE) {
+      logLevel = 'error';
+    }
+
     this.assignLoggerResponse(parsedResponse);
     const message = `${response.statusCode} | [${request.method}] ${parsedRequest.url} - ${parsedResponse.requestTime}ms`;
 
-    this.call('log', message);
+    const logOnlyErrorRequests =
+      logLevel === 'error' && this.params.logOnlyErrorRequests !== false;
+    if (this.params.logAllRequests || logOnlyErrorRequests) {
+      this.call(logLevel, message);
+    }
   }
 
   private call(level: LogLevel, message: any) {
@@ -78,6 +88,7 @@ export class AppLoggerService extends ConsoleLogger {
       msg: message,
       date: new Date().toISOString(),
       level: level.toUpperCase(),
+      context: this.context,
     };
 
     return loggerObj;

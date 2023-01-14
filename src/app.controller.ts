@@ -1,6 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
-import { AppLoggerService } from './app-logger/appLogger.service';
+// import { AppLoggerService } from './app-logger/appLogger.service';
+import { AppLoggerService } from '@manogel/nestjs-log-trail';
 
 @Controller()
 export class AppController {
@@ -16,6 +17,9 @@ export class AppController {
 
   @Get('/error')
   getError() {
+    this.logger.assignExtraData({
+      userId: 'userFromRequest',
+    });
     return this.appService.getError();
   }
 

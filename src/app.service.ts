@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { AppLoggerService } from './app-logger/appLogger.service';
+// import { AppLoggerService } from './app-logger/appLogger.service';
+import { AppLoggerService } from '@manogel/nestjs-log-trail';
 
 @Injectable()
 export class AppService {

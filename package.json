@@ -1,6 +1,6 @@
 {
   "name": "@manogel/nestjs-log-trail",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Custom logger for NestJS",
   "author": "Manogel <manoelgomes53@gmail.com> (http://github.com/manogel)",
   "license": "GPL-3.0",
